@@ -2,3 +2,9 @@ node_modules/
 .next/
 *.log
 .env
+
+# Local Simulation and Dynamic Telemetry Artifacts
+dashboard_view/
+pipeline/stix_output_*.json
+gate/*.log
+vault_backups/
