@@ -1,0 +1,63 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "etb-threats",
+        "options": {}
+      },
+      "id": "webhook-trigger-node",
+      "name": "ETB Gate Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "command": "python C:\\Users\\casei\\Desktop\\etb_payshield\\pipeline\\stix_parser.py"
+      },
+      "id": "execute-parser-node",
+      "name": "Run STIX Parser",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "fileWriteSettings": {
+          "fileName": "C:\\Users\\casei\\Desktop\\etb_payshield\\dashboard\\active_threat_feed.json",
+          "fileContent": "={{ $json.stdout }}"
+        }
+      },
+      "id": "write-json-node",
+      "name": "Write to Dashboard Feed",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [710, 300]
+    }
+  ],
+  "connections": {
+    "ETB Gate Webhook": {
+      "main": [
+        [
+          {
+            "node": "Run STIX Parser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run STIX Parser": {
+      "main": [
+        [
+          {
+            "node": "Write to Dashboard Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
