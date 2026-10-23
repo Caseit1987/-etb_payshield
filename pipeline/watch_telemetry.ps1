@@ -1,22 +1,33 @@
-﻿# ETB PayShield Live Task Orchestration Daemon
-# Watches for intercepted traffic logs and forwards them to the STIX 2.1 Serialization Engine
-
+﻿# ETB PayShield Live Task Orchestration Daemon (With Log Rotation Handling)
 $logPath = "gate\intercept_stream.log"
+$archiveDir = "gate\archive"
+$maxSizeBytes = 5120  # 5KB Threshold for Automated Log Rotation Testing
+
 Write-Host "📡 ETB PayShield Background Task Orchestration Engine Active..." -ForegroundColor Cyan
-Write-Host "Watching tracking log target: $logPath" -ForegroundColor Yellow
+Write-Host "Monitoring log target: $logPath" -ForegroundColor Yellow
 
-# Create file if it doesn't exist to prevent polling breaks
 if (-not (Test-Path $logPath)) { New-Item -ItemType File -Path $logPath -Force | Out-Null }
+if (-not (Test-Path $archiveDir)) { New-Item -ItemType Directory -Path $archiveDir -Force | Out-Null }
 
-# Get current line count to only process new additions
 $lineCount = (Get-Content $logPath).Length
 
 while ($true) {
     Start-Sleep -Seconds 1
     if (Test-Path $logPath) {
+        # Check if Log Rotation Condition is met
+        $fileSize = (Get-Item $logPath).Length
+        if ($fileSize -gt $maxSizeBytes) {
+            $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+            $archivePath = "$archiveDir\intercept_stream_$timestamp.log"
+            Move-Item -Path $logPath -Destination $archivePath -Force
+            New-Item -ItemType File -Path $logPath -Force | Out-Null
+            $lineCount = 0
+            Write-Host "[🔄] Log Size Limit Exceeded. Automated log rotation executed: $archivePath" -ForegroundColor Cyan
+            continue
+        }
+
         $currentLines = Get-Content $logPath
         if ($currentLines.Length -gt $lineCount) {
-            # Extract new raw transaction log entries
             $newEntries = $currentLines[$lineCount..($currentLines.Length - 1)]
             foreach ($entry in $newEntries) {
                 if ($entry -match 'INTERCEPTED: src=(?<src>[^ ]+) dst_port=(?<port>\d+) method=(?<method>[^ ]+)') {
@@ -25,8 +36,6 @@ while ($true) {
                     $method = $Matches.method
                     
                     Write-Host "[⚠️] Threat Intercept Detected: src=$src dst_port=$port method=$method. Triggering STIX parser..." -ForegroundColor Red
-                    
-                    # Programmatically execute your Python serialization pipeline matrix
                     python pipeline\stix_parser.py --src $src --port $port --method $method --anomalous True
                 }
             }
