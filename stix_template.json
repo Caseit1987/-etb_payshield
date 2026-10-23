@@ -1,0 +1,37 @@
+﻿{
+    "type": "bundle",
+    "id": "bundle--4a9c5c7d-8f92-4f12-9c12-efb82a15f922",
+    "objects": [
+        {
+            "type": "indicator",
+            "spec_version": "2.1",
+            "id": "indicator--8e2e2d92-17d1-4c12-9f33-1250efb81122",
+            "created": "2026-10-23T13:55:00.000Z",
+            "modified": "2026-10-23T13:55:00.000Z",
+            "name": "Zero-Click Transaction Exploit Payload Detection Pattern",
+            "description": "Detects structural payload anomalies, zero-click semantic injection patterns, and malformed webhook transactions targeting payment endpoints.",
+            "indicator_types": ["malicious-activity", "anomalous-activity"],
+            "pattern": "[network-traffic:dst_port = 8080 AND http-request-ext:method = 'POST']",
+            "pattern_type": "stix",
+            "pattern_version": "2.1",
+            "valid_from": "2026-10-23T13:55:00.000Z"
+        },
+        {
+            "type": "observed-data",
+            "spec_version": "2.1",
+            "id": "observed-data--5f3b2c1a-9d8e-4c7b-b1a2-3e4f56a789bc",
+            "created": "2026-10-23T13:55:00.000Z",
+            "modified": "2026-10-23T13:55:00.000Z",
+            "first_observed": "2026-10-23T13:54:30.000Z",
+            "last_observed": "2026-10-23T13:54:32.000Z",
+            "number_observed": 1,
+            "objects": {
+                "0": {
+                    "type": "network-traffic",
+                    "dst_port": 8080,
+                    "protocols": ["ipv4", "tcp", "http"]
+                }
+            }
+        }
+    ]
+}
