@@ -43,7 +43,7 @@ try {
         $statusCode = $_.Exception.Response.StatusCode.Value__
         Write-Host "[?] Success: Gate actively blocked request with HTTP Status Code: $statusCode" -ForegroundColor Green
     } else {
-        Write-Host "[-] Connection error encountered: Gate did not initialize properly." -ForegroundColor Red
+        if ($error[0].Exception.InnerException.Response.StatusCode -eq "Forbidden" -or $error[0].Exception.Response.StatusCode -eq "Forbidden") { Write-Host "[?] Success: Gate actively blocked request with HTTP Status Code: 403" -ForegroundColor Green } else { Write-Host "[-] Connection error encountered: Gate did not initialize properly." -ForegroundColor Red }
     }
 }
 
